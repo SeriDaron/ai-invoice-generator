@@ -1,69 +1,103 @@
-import Image from "next/image";
+"use client";
+
+import React, { useState } from "react";
+import { useInvoiceSubmit } from "@/features/invoice-generator/hooks/useInvoiceSubmit";
+import { InvoiceSkeleton } from "@/features/invoice-generator/components/InvoiceSkeleton";
+import { InvoicePreview } from "@/features/invoice-generator/components/InvoicePreview";
+import { Sparkles, Terminal, AlertCircle } from "lucide-react";
 
 export default function Home() {
+  const [prompt, setPrompt] = useState<string>("");
+  const { isLoading, invoice, error, generateInvoice } = useInvoiceSubmit();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!prompt.trim() || isLoading) return;
+    
+    // Store the prompt in a temporary variable before submitting
+    const currentPrompt = prompt.trim();
+
+    // Trigger generation
+    await generateInvoice({
+      prompt: currentPrompt
+    });
+
+    // If no error is present after the call completes, generation succeeded: clear the field
+    // Deferred check, since the error state is updated inside the hook
+    setTimeout(() => {
+      // If the hook reported no error, clear the input
+      if (!document.body.innerText.includes("Request timeout exceeded")) {
+        setPrompt("");
+      }
+    }, 50);
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
+    <main className="min-h-screen bg-slate-50 text-slate-900 py-12 px-4 sm:px-6 lg:px-8 font-sans">
+      <div className="max-w-3xl mx-auto space-y-8">
+        
+        {/* Project header */}
+        <div className="text-center space-y-2">
+          <h1 className="text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">
+            B2B AI Invoice & Content Generator
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="text-sm text-slate-500 max-w-xl mx-auto">
+            Micro-SaaS tool with localized LLM pipeline simulation, built-in abort timeouts, and resilient fallback mechanisms.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        {/* Generator form */}
+        <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-6">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="prompt" className="block text-sm font-semibold text-slate-700 mb-2">
+                Describe invoice parameters to the AI Agent
+              </label>
+              <textarea
+                id="prompt"
+                rows={3}
+                className="w-full rounded-lg border border-slate-200 p-3 text-sm shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition placeholder:text-slate-400"
+                placeholder="e.g., Generate a marketing services invoice for Acme Global for 4700 EUR with a 10% tax rate..."
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                disabled={isLoading}
+              />
+            </div>
+
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2 text-xs text-slate-400">
+                <Terminal className="h-3.5 w-3.5" />
+                <span>Simulation mode: Active (5s client timeout)</span>
+              </div>
+              <button
+                type="submit"
+                disabled={isLoading || !prompt.trim()}
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Sparkles className="h-4 w-4" />
+                {isLoading ? "AI Calculating..." : "Generate"}
+              </button>
+            </div>
+          </form>
         </div>
-      </main>
-    </div>
+
+        {/* Error / timeout warning block */}
+        {error && (
+          <div className="p-4 rounded-lg bg-red-50 border border-red-200 text-red-800 flex items-start gap-3 text-sm">
+            <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <span className="font-semibold">Pipeline Status:</span> {error}
+            </div>
+          </div>
+        )}
+
+        {/* Results rendering section */}
+        <div className="pt-2">
+          {isLoading && <InvoiceSkeleton />}
+          {!isLoading && invoice && <InvoicePreview invoice={invoice} />}
+        </div>
+
+      </div>
+    </main>
   );
 }
