@@ -41,16 +41,18 @@ export async function POST(request: NextRequest) {
 
     // 2. Simulate the AI text analysis phase (NLP Tokenization Phase)
     // If the client aborts the request (AbortController on the frontend), the promise rejects into the catch block
-    await delayWithSignal(4000, signal);
+    await delayWithSignal(1200, signal);
 
     // 3. Dynamically build the simulated data from the prompt
     const lowerPrompt = body.prompt.toLowerCase();
     const isEuro = lowerPrompt.includes("euro") || lowerPrompt.includes("eur");
     const currency = isEuro ? "EUR" : (body.currency || "USD");
-    const taxRate = body.taxRate ?? 0.2; // Defaults to 20% VAT
+    const taxMatch = lowerPrompt.match(/(\d{1,2}(?:\.\d+)?)\s*%/);
+    const promptTaxRate = taxMatch ? parseFloat(taxMatch[1]) / 100 : undefined;
+    const taxRate = body.taxRate ?? promptTaxRate ?? 0.2; // Defaults to 20% VAT
 
     // Simulate the financial table calculation phase (Math Synthesis Phase)
-    await delayWithSignal(1000, signal);
+    await delayWithSignal(800, signal);
 
     // Select line items based on keywords in the prompt
     let generatedItems = [

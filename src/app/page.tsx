@@ -17,18 +17,9 @@ export default function Home() {
     // Store the prompt in a temporary variable before submitting
     const currentPrompt = prompt.trim();
 
-    // Trigger generation
-    await generateInvoice({
-      prompt: currentPrompt
-    });
-
-    // If no error is present after the call completes, generation succeeded: clear the field
-    setTimeout(() => {
-      // Check the error state text
-      if (!document.body.innerText.includes("Request timeout exceeded")) {
-        setPrompt("");
-      }
-    }, 50);
+    // Clear the field only when generation succeeded
+    const succeeded = await generateInvoice({ prompt: currentPrompt });
+    if (succeeded) setPrompt("");
   };
 
   return (

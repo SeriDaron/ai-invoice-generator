@@ -1,12 +1,13 @@
 import { useState, useCallback } from "react";
 import { Invoice, InvoiceGenerationRequest } from "@/core/types/invoice";
+import { FALLBACK_INVOICE } from "@/core/constants/fallbacks";
 
 export const useInvoiceSubmit = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const generateInvoice = useCallback(async (payload: InvoiceGenerationRequest) => {
+  const generateInvoice = useCallback(async (payload: InvoiceGenerationRequest): Promise<boolean> => {
     setIsLoading(true);
     setError(null);
 
@@ -35,15 +36,17 @@ export const useInvoiceSubmit = () => {
 
       const data: Invoice = await response.json();
       setInvoice(data);
+      return true;
     } catch (err: unknown) {
       if (err instanceof Error) {
         if (err.name === "AbortError") {
+          setInvoice({ ...FALLBACK_INVOICE, metadata: { ...FALLBACK_INVOICE.metadata } });
           setError("Request timeout exceeded. High-fidelity fallback loaded.");
         } else {
           setError(err.message || "An unexpected system error occurred.");
         }
       }
-
+      return false;
     } finally {
       // Always clear the timer so it does not fire later
       clearTimeout(timeoutId);
