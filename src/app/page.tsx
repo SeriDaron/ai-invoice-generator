@@ -23,9 +23,8 @@ export default function Home() {
     });
 
     // If no error is present after the call completes, generation succeeded: clear the field
-    // Deferred check, since the error state is updated inside the hook
     setTimeout(() => {
-      // If the hook reported no error, clear the input
+      // Check the error state text
       if (!document.body.innerText.includes("Request timeout exceeded")) {
         setPrompt("");
       }

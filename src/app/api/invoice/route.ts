@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
 
     // 2. Simulate the AI text analysis phase (NLP Tokenization Phase)
     // If the client aborts the request (AbortController on the frontend), the promise rejects into the catch block
-    await delayWithSignal(1200, signal);
+    await delayWithSignal(4000, signal);
 
     // 3. Dynamically build the simulated data from the prompt
     const lowerPrompt = body.prompt.toLowerCase();
