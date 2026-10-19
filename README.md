@@ -4,6 +4,10 @@ A micro-SaaS tool that turns a plain-English prompt into a structured, previewab
 
 > **Demo note:** the "AI" pipeline is simulated locally by a Next.js API route (no API key required). The route is designed to be replaced with a real LLM call.
 
+## Screenshot
+
+![AI Invoice Generator showing a generated EUR invoice](docs/screenshot.png)
+
 ## Features
 
 - **Prompt to invoice:** e.g. *"Generate a marketing services invoice for Acme Global for 4700 EUR with a 10% tax rate."* Currency, line items, and tax are inferred from the prompt.
