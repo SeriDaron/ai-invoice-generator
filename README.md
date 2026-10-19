@@ -2,6 +2,8 @@
 
 A micro-SaaS tool that turns a plain-English prompt into a structured, previewable invoice. Built with **Next.js (App Router)**, **TypeScript**, and **Tailwind CSS**.
 
+**Live demo:** [ai-invoice-generator-gray.vercel.app](https://ai-invoice-generator-gray.vercel.app)
+
 > **Demo note:** the "AI" pipeline is simulated locally by a Next.js API route (no API key required). The route is designed to be replaced with a real LLM call.
 
 ## Screenshot
